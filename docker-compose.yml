@@ -1,8 +1,7 @@
-version: "3.9"
 services:
   db:
     image: postgres
-    container_name: local_pgdb
+    container_name: postgres-container
     ports:
       - 5432:5432
     env_file: .env
@@ -14,34 +13,32 @@ services:
       - ./pg-data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      dbNetwork:
-        ipv4_address: 17.5.0.2
+      - default
+        # ipv4_address: 172.20.128.10
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin_container
+    container_name: pgadmin-container
     env_file: .env
     environment:
       PGADMIN_DEFAULT_EMAIL: $PGADMIN_DEFAULT_EMAIL
       PGADMIN_DEFAULT_PASSWORD: $PGADMIN_DEFAULT_PASSWORD
-      PGADMIN_LISTEN_PORT: 5050
     volumes:
       - ./pgadmin-data:/var/lib/pgadmin
     user: "5050:5050"
-    ports:
-      - "5050:5050"
     depends_on:
       - db
     networks:
-      dbNetwork:
-        ipv4_address: 17.5.0.3
+      - default
+        # ipv4_address: 172.20.128.11
 
 volumes:
     pg-data:
     pgadmin-data:
 networks:
-  dbNetwork:
+  default:
+    name: writeonce-network
     driver: bridge
-    ipam:
-      config:
-        - subnet: 17.5.0.0/16
-          gateway: 17.5.0.1
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16
+    #       gateway: 172.20.0.1
